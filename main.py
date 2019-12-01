@@ -3,39 +3,104 @@ from random import random
 from copy import deepcopy
 
 def forward_selection(data_set,num_features,num_lines):
-
+    print("Beginning search")
     current_set_of_features = []
     best_so_far_accuracy = 0
+    local_max_accuracy = 0
     copy_feature_set = []
+    set = []
     for i in range(num_features):
         feature_to_add_at_this_level = -1
+        local_feature = -1
 
         print("On level " + str(i) + " of search tree")
         for k in range(1, num_features + 1):
             if (k not in current_set_of_features):
-                print("--Considering adding the ", k, " feature")
+                #print("--Considering adding the ", k, " feature")
                 copy_feature_set = deepcopy(current_set_of_features)
                 if k >= 0:
                     copy_feature_set.append(k)
                 accuracy = one_out_cross_validation(data_set, num_features, num_lines, copy_feature_set )
                 #accuracy = rand_one_out()
 
-                print("Using features ", copy_feature_set, " accuracy ", accuracy)
+                print("     Using feature(s):", copy_feature_set, "accuracy is", str(round(accuracy,2)),"%")
                 if accuracy > best_so_far_accuracy:
                     best_so_far_accuracy = accuracy;
                     feature_to_add_at_this_level = k
+                elif accuracy > local_max_accuracy:
+                    local_max_accuracy = accuracy
+                    local_feature = k
+
 
 
         if feature_to_add_at_this_level >= 0:
             current_set_of_features.append(feature_to_add_at_this_level)
-            print("On level ", i, " I added feature ",feature_to_add_at_this_level," to current set" )
-        else:
-            print("Accuracy decrease")
-            break;
+            set.append(feature_to_add_at_this_level)
+            #print("Feature set",feature_to_add_at_this_level,"was best, accuracy is {:0.2f}º%.\n".format(accuracy) )
+            print("Feature set",feature_to_add_at_this_level,"was best, accuracy is", str(round(accuracy,2)) )
 
-    print("Best set of features to use: ", current_set_of_features, " accuracy " , best_so_far_accuracy)
+        else:
+            #current_set_of_features.append(local_feature)
+            print("(Warning, Accuracy has decreased! Continuing search in case of local maxima)")
+            break;
+            #print("Feature set",local_feature,"was best, accuracy is", str(round(accuracy,2)), "%" )
+
+
+
+    print("Finished! Best set of features to use:", set, "with accuracy of" , str(round(best_so_far_accuracy,2)),"%")
 #
-# def backward_elimination():
+def backward_elimination(data_set ,num_features, num_lines, acc):
+    print("Beginning search")
+
+    current_set_of_features = []
+    best_so_far_accuracy = acc
+    local_max_accuracy = 0
+    copy_feature_set = []
+    set = []
+
+    for elem in range(1, num_features+1):
+        current_set_of_features.append(elem)
+
+
+    for i in range(num_features):
+        feature_to_add_at_this_level = -1
+        local_feature = -1
+
+        print("On level " + str(i) + " of search tree")
+        for k in range(1, num_features + 1):
+            if (k in current_set_of_features):
+                #print("--Considering adding the ", k, " feature")
+                copy_feature_set = deepcopy(current_set_of_features)
+                if k >= 0:
+                    copy_feature_set.remove(k)
+                accuracy = one_out_cross_validation(data_set, num_features, num_lines, copy_feature_set )
+                #accuracy = rand_one_out()
+
+                print("     Using feature(s):", copy_feature_set, "accuracy is", str(round(accuracy,2)),"%")
+                if accuracy > best_so_far_accuracy:
+                    best_so_far_accuracy = accuracy;
+                    feature_to_add_at_this_level = k
+                elif accuracy > local_max_accuracy:
+                    local_max_accuracy = accuracy
+                    local_feature = k
+
+
+
+        if feature_to_add_at_this_level >= 0:
+            current_set_of_features.remove(feature_to_add_at_this_level)
+            #set.remove(feature_to_add_at_this_level)
+            #print("Feature set",feature_to_add_at_this_level,"was best, accuracy is {:0.2f}º%.\n".format(accuracy) )
+            print("Feature set",feature_to_add_at_this_level,"was best, accuracy is", str(round(accuracy,2)) )
+
+        else:
+            #current_set_of_features.append(local_feature)
+            print("(Warning, Accuracy has decreased! Continuing search in case of local maxima)")
+            break;
+            #print("Feature set",local_feature,"was best, accuracy is", str(round(accuracy,2)), "%" )
+
+
+
+    print("Finished! Best set of features to use:", current_set_of_features, "with accuracy of" , str(round(best_so_far_accuracy,2)),"%")
 #
 def nearest_neighbor(data_set, num_features, num_lines, copy_feature_set, one_out):
 
@@ -60,8 +125,6 @@ def nearest_neighbor(data_set, num_features, num_lines, copy_feature_set, one_ou
 
     return nn
 
-def rand_one_out():
-    return random()
 
 def one_out_cross_validation(data_set, num_features, num_lines, copy_feature_set):
     x = 0
@@ -117,7 +180,7 @@ def normalize(data, num_features, num_lines):
     return data
 
 
-def custom_search(data_set, num_features, num_lines):
+#def custom_search(data_set, num_features, num_lines):
 
 
 
@@ -144,21 +207,32 @@ def main():
     data.seek(0,0)
     data_set = [[] for i in range(num_lines)]
 
+    print("This dataset has", num_features, "features (not including class attribute), with", num_lines, "instances." + "\n")
+
 
     for i in range(num_lines):
         data_set[i] = [float(j) for j in data.readline().split()]
 
 
+    print("Normalizing data . . ." + "\n")
+
     new_data = normalize(data_set,num_features,num_lines)
-    #print(new_data)
+    copy_feature_set = []
+    for elem in range(1, num_features+1):
+        copy_feature_set.append(elem)
+
+    acc = one_out_cross_validation(data_set, num_features, num_lines, copy_feature_set)
+
+    print("Running nearest neighbor with all", num_features, "features, using \"leaving-one-out\" evaluation, I get an accuracy of",str(round(acc,2)), "%" + "\n" )
     print("Type the number of the algorithm you want to run")
     algorithm_select = input("1) Forward Selection" + '\n'
                              "2) Backward Elimination" + '\n'
                              "3) Parth's Special Algorithm" + '\n')
+
     if algorithm_select == '1':
         forward_selection(new_data, num_features, num_lines)
     if algorithm_select == '2':
-        pass
+        backward_elimination(new_data,num_features, num_lines, acc)
     if algorithm_select == '3':
         custom_search(new_data,num_features, num_lines)
 
