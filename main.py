@@ -7,21 +7,26 @@ def forward_selection(data_set,num_features,num_lines):
     current_set_of_features = []
     best_so_far_accuracy = 0
     copy_feature_set = []
-
     for i in range(num_features):
-        feature_to_add_at_this_level = 0
+        feature_to_add_at_this_level = -1
+
         print("On level " + str(i) + " of search tree")
         for k in range(1, num_features + 1):
             if (k not in current_set_of_features):
                 print("--Considering adding the ", k, " feature")
                 copy_feature_set = deepcopy(current_set_of_features)
-                copy_feature_set.append(k)
+                if k >= 0:
+                    copy_feature_set.append(k)
                 accuracy = one_out_cross_validation(data_set, num_features, num_lines, copy_feature_set )
+                #accuracy = rand_one_out()
 
+                print("Using features ", copy_feature_set, " accuracy ", accuracy)
                 if accuracy > best_so_far_accuracy:
                     best_so_far_accuracy = accuracy;
                     feature_to_add_at_this_level = k
-        if feature_to_add_at_this_level > 0:
+
+
+        if feature_to_add_at_this_level >= 0:
             current_set_of_features.append(feature_to_add_at_this_level)
             print("On level ", i, " I added feature ",feature_to_add_at_this_level," to current set" )
         else:
@@ -32,16 +37,45 @@ def forward_selection(data_set,num_features,num_lines):
 #
 # def backward_elimination():
 #
-def nearest_neighbor(data_set, num_features, num_lines, copy_set):
+def nearest_neighbor(data_set, num_features, num_lines, copy_feature_set, one_out):
 
-    #power(p1 -p1, 2)
+    #power(p1 -p2, 2)
+    nn_dist = float('inf')
+    nn = -1
+    dist = 0
+
+
     for i in range(num_lines):
-        for j in range(num_features):
-            pow(data_set[i][])
+        if one_out == i:
+            pass
+        else:
+            x = 0
+            for j in range(len(copy_feature_set)):
+                x += pow(data_set[i][copy_feature_set[j]] - data_set[one_out][copy_feature_set[j]],2)
+            dist = math.sqrt(x)
 
+            if dist < nn_dist:
+                nn_dist = dist
+                nn = i
 
-def one_out_cross_validation():
+    return nn
+
+def rand_one_out():
     return random()
+
+def one_out_cross_validation(data_set, num_features, num_lines, copy_feature_set):
+    x = 0
+    num_correct = 0
+    for i in range(num_lines):
+        x = i
+
+        nn = nearest_neighbor(data_set, num_features, num_lines, copy_feature_set, x)
+
+        if data_set[x][0] == data_set[nn][0]:
+            num_correct += 1
+
+    accuracy = (num_correct / num_lines) * 100
+    return accuracy
 
 #x = ((X-mean(x))/std(x))
 
@@ -83,6 +117,7 @@ def normalize(data, num_features, num_lines):
     return data
 
 
+def custom_search(data_set, num_features, num_lines):
 
 
 
@@ -122,6 +157,10 @@ def main():
                              "3) Parth's Special Algorithm" + '\n')
     if algorithm_select == '1':
         forward_selection(new_data, num_features, num_lines)
+    if algorithm_select == '2':
+        pass
+    if algorithm_select == '3':
+        custom_search(new_data,num_features, num_lines)
 
 
     # The first column is the class, these values will always be either “1”s or “2”s.
