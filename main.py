@@ -1,8 +1,9 @@
 import math
+import time
 from random import random
 from copy import deepcopy
 
-def forward_selection(data_set,num_features,num_lines):
+def forward_selection(data_set,num_features,num_lines, is_custom):
     print("Beginning search")
     current_set_of_features = []
     best_so_far_accuracy = 0
@@ -46,9 +47,11 @@ def forward_selection(data_set,num_features,num_lines):
             #print("Feature set",local_feature,"was best, accuracy is", str(round(accuracy,2)), "%" )
 
 
+    if(is_custom):
+        return set, best_so_far_accuracy
+    else:
+        print("Finished! Best set of features to use:", set, "with accuracy of" , str(round(best_so_far_accuracy,2)),"%")
 
-    print("Finished! Best set of features to use:", set, "with accuracy of" , str(round(best_so_far_accuracy,2)),"%")
-#
 def backward_elimination(data_set ,num_features, num_lines, acc):
     print("Beginning search")
 
@@ -101,7 +104,40 @@ def backward_elimination(data_set ,num_features, num_lines, acc):
 
 
     print("Finished! Best set of features to use:", current_set_of_features, "with accuracy of" , str(round(best_so_far_accuracy,2)),"%")
-#
+def split_list(data):
+    half = len(data)//2
+    return data[:half], data[half:]
+
+def custom_search(data_set, num_features, num_lines):
+    list = []
+    current_set_of_features = []
+
+    copy_feature_set, copy_feature_set2 = split_list(data_set)
+    a, b = split_list(copy_feature_set)
+    c, d = split_list(copy_feature_set2)
+
+
+
+
+    set1, acc1 = forward_selection(copy_feature_set, num_features, num_lines//2, 1)
+    set2, acc2 = forward_selection(copy_feature_set2, num_features, num_lines//2, 1)
+    # set3, acc3 = forward_selection(copy_feature_set2, num_features, num_lines//4)
+    # set4, acc4 = forward_selection(copy_feature_set2, num_features, num_lines//4)
+
+    list.append(acc1)
+    list.append(acc2)
+    # list.append(acc3)
+    # list.append(acc4)
+    #list.sort()
+    print(list)
+
+    if(acc1 >= acc2):
+        print("Finished! Best set of features to use:", set1, "with accuracy of" , str(round(acc1,2)),"%")
+    elif(acc2 > acc1):
+        print("Finished! Best set of features to use:", set2, "with accuracy of" , str(round(acc2,2)),"%")
+
+
+
 def nearest_neighbor(data_set, num_features, num_lines, copy_feature_set, one_out):
 
     #power(p1 -p2, 2)
@@ -180,8 +216,6 @@ def normalize(data, num_features, num_lines):
     return data
 
 
-#def custom_search(data_set, num_features, num_lines):
-
 
 
 def main():
@@ -222,7 +256,6 @@ def main():
         copy_feature_set.append(elem)
 
     acc = one_out_cross_validation(data_set, num_features, num_lines, copy_feature_set)
-
     print("Running nearest neighbor with all", num_features, "features, using \"leaving-one-out\" evaluation, I get an accuracy of",str(round(acc,2)), "%" + "\n" )
     print("Type the number of the algorithm you want to run")
     algorithm_select = input("1) Forward Selection" + '\n'
@@ -230,11 +263,18 @@ def main():
                              "3) Parth's Special Algorithm" + '\n')
 
     if algorithm_select == '1':
-        forward_selection(new_data, num_features, num_lines)
+        start = time.time()
+        forward_selection(new_data, num_features, num_lines,0)
+        end = time.time()
     if algorithm_select == '2':
+        start = time.time()
         backward_elimination(new_data,num_features, num_lines, acc)
+        end = time.time()
     if algorithm_select == '3':
+        start = time.time()
         custom_search(new_data,num_features, num_lines)
+        end = time.time()
+    print("Time elapsed: ", end - start)
 
 
     # The first column is the class, these values will always be either “1”s or “2”s.
