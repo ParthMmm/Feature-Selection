@@ -1,12 +1,47 @@
 import math
+from random import random
+from copy import deepcopy
 
-# def forward_selection():
+def forward_selection(data_set,num_features,num_lines):
+
+    current_set_of_features = []
+    best_so_far_accuracy = 0
+    copy_feature_set = []
+
+    for i in range(num_features):
+        feature_to_add_at_this_level = 0
+        print("On level " + str(i) + " of search tree")
+        for k in range(1, num_features + 1):
+            if (k not in current_set_of_features):
+                print("--Considering adding the ", k, " feature")
+                copy_feature_set = deepcopy(current_set_of_features)
+                copy_feature_set.append(k)
+                accuracy = one_out_cross_validation(data_set, num_features, num_lines, copy_feature_set )
+
+                if accuracy > best_so_far_accuracy:
+                    best_so_far_accuracy = accuracy;
+                    feature_to_add_at_this_level = k
+        if feature_to_add_at_this_level > 0:
+            current_set_of_features.append(feature_to_add_at_this_level)
+            print("On level ", i, " I added feature ",feature_to_add_at_this_level," to current set" )
+        else:
+            print("Accuracy decrease")
+            break;
+
+    print("Best set of features to use: ", current_set_of_features, " accuracy " , best_so_far_accuracy)
 #
 # def backward_elimination():
 #
-# def nearest_neighbor():
+def nearest_neighbor(data_set, num_features, num_lines, copy_set):
+
+    #power(p1 -p1, 2)
+    for i in range(num_lines):
+        for j in range(num_features):
+            pow(data_set[i][])
 
 
+def one_out_cross_validation():
+    return random()
 
 #x = ((X-mean(x))/std(x))
 
@@ -80,11 +115,14 @@ def main():
 
 
     new_data = normalize(data_set,num_features,num_lines)
-    print(new_data)
+    #print(new_data)
     print("Type the number of the algorithm you want to run")
     algorithm_select = input("1) Forward Selection" + '\n'
                              "2) Backward Elimination" + '\n'
                              "3) Parth's Special Algorithm" + '\n')
+    if algorithm_select == '1':
+        forward_selection(new_data, num_features, num_lines)
+
 
     # The first column is the class, these values will always be either “1”s or “2”s.
     # The other columns contain the features, which are not normalized
