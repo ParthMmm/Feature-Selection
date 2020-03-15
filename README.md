@@ -1,2 +1,3 @@
 # Feature-Selection
-CS170 AI Project 2
+
+This project was for CS 170: Introduction to Artificial Intelligence at UCR. The program uses the nearest neighbor classifier with forward selection, backward elimination, and a custom search algorithm to find the best features. The custom search algorithm is forward selection with pruning. For small datasets, all three algorithms got the same features and accuracy. The custom algorithm was fastest, forward selection was slower, and backwards elimination was significantly slower. With large datasets, forward selection and my custom algorithm got the same features and accuracy but the custom algorithm was much faster. Backwards elimination had worse accuracy and got too many extra features as wel as being significantly slower.
